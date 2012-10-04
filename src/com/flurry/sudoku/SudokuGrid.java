@@ -100,13 +100,88 @@ public class SudokuGrid {
 
 		// check blocks
 		for (SudokuBlock b : blocks) {
-			solved &= b.checkSolved();
+			if (!b.checkSolved()) {
+				return false;
+			}
 		}
 
+		// check rows of the entire table
+
+		// check columns of entire table
+		
+		
 		return solved;
-		// check entire table
 	}
 
+	/**
+	 * 
+	 * @author nikhilshirahatti
+	 * 
+	 *         Helper class to check correctness of rows, columns and tables
+	 */
+	private final static class CheckerHelper {
+
+		private static boolean checkBlock(int[][] block) {
+			Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
+
+			int blockSize = block.length;
+
+			for (int[] elementArray : block) {
+				for (int c = 0; c < blockSize; c++) {
+					int element = elementArray[c];
+					assert (element <= blockSize * blockSize);
+					if (counter.containsKey(element)) {
+						return false;
+					} else {
+						counter.put(element, 1);
+					}
+				}
+
+				assert (counter.values().size() == blockSize * blockSize);
+				for (int v : counter.values()) {
+					assert (v == 1);
+				}
+
+				return true;
+
+			}
+
+			assert (counter.values().size() == blockSize);
+			for (int v : counter.values()) {
+				assert (v == 1);
+			}
+
+			return true;
+		}
+
+		private static boolean checkArray(int[] array) {
+			Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
+			int arrayLength = array.length;
+
+			for (int i : array) {
+				assert (i <= arrayLength * arrayLength);
+				if (counter.containsKey(i)) {
+					return false;
+				} else {
+					counter.put(i, 1);
+				}
+			}
+
+			assert (counter.values().size() == arrayLength);
+			for (int v : counter.values()) {
+				assert (v == 1);
+			}
+
+			return true;
+		}
+
+	}
+
+	/**
+	 * 
+	 * @author nikhilshirahatti
+	 * 
+	 */
 	private class SudokuBlock {
 
 		private int[][] data;
@@ -144,7 +219,9 @@ public class SudokuGrid {
 
 			// row check
 			for (int r = 0; r < data.length; r++) {
-				solved &= checkArray(data[r]);
+				if (!CheckerHelper.checkArray(data[r])) {
+					return false;
+				}
 			}
 
 			// column check
@@ -154,63 +231,17 @@ public class SudokuGrid {
 					colArray[r] = data[r][c];
 				}
 
-				solved &= checkArray(colArray);
+				if (!CheckerHelper.checkArray(colArray)) {
+					return false;
+				}
 			}
 
 			// entire table check
-			return solved &= checkBlock(data);
-
-		}
-
-		private boolean checkBlock(int[][] block) {
-			Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
-
-			for (int[] elementArray : block) {
-				for (int c = 0; c < block.length; c++) {
-					int element = elementArray[c];
-					assert (element <= data.length);
-					if (counter.containsKey(element)) {
-						return false;
-					} else {
-						counter.put(element, 1);
-					}
-				}
-
-				assert (counter.values().size() == data.length * data.length);
-				for (int v : counter.values()) {
-					assert (v == 1);
-				}
-
-				return true;
-
+			if (!CheckerHelper.checkBlock(data)) {
+				return false;
 			}
 
-			assert (counter.values().size() == data.length);
-			for (int v : counter.values()) {
-				assert (v == 1);
-			}
-
-			return true;
-		}
-
-		private boolean checkArray(int[] array) {
-			Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
-
-			for (int i : array) {
-				assert (i <= data.length);
-				if (counter.containsKey(i)) {
-					return false;
-				} else {
-					counter.put(i, 1);
-				}
-			}
-
-			assert (counter.values().size() == data.length);
-			for (int v : counter.values()) {
-				assert (v == 1);
-			}
-
-			return true;
+			return solved;
 		}
 
 		public String toString() {
@@ -233,15 +264,23 @@ public class SudokuGrid {
 
 	public static void main(String[] args) {
 		try {
+			long startTime = System.nanoTime();
 			SudokuGrid grid = new SudokuGrid("data/MangledsampleInput_4x4.txt");
+			long loadTime = System.nanoTime();
+			System.out.println("Load time in millisecs is: ".concat(String
+					.valueOf(loadTime - startTime)));
 			System.out.println(grid.toString());
+			startTime = System.nanoTime();
 			System.out.println("Is the given sudoku solved? ".concat(String
 					.valueOf(grid.checkSolved())));
+			long checkTime = System.nanoTime();
+			System.out
+					.println("Time taken to detect correctness of solution in millisecs is: "
+							.concat(String.valueOf(checkTime - startTime)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
-
 }
