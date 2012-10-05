@@ -1,190 +1,98 @@
 package com.flurry.sudoku;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 
-public class SudokuGrid {
+/**
+ * 
+ * @author snikhil
+ * 
+ *         The class that contains the entire sudoku data. The class stores the
+ *         entire table into a 2d array as well as stores an array of
+ *         Sudokublocks. The SudokuBlock is a unit of a SudokuGrid. The rules
+ *         for correctness of the SudokuGrid apply to the SudokuBlock.
+ * 
+ */
+public class SudokuGrid implements SudokuPlus {
 
-	private static final String SEPERATOR = ",";
-	private int[][] data;
-	private SudokuBlock[] blocks;
-
+	private static final int MILLISEC = 100000;
+	Grid data;
+	private SudokuPlus[] blocks;
+	
+	
 	/**
 	 * 
 	 * @param filename
 	 *            the filename(path) that has the csv representation of the data
 	 * @throws IOException
+	 *             throw an IOException of file is not present or corruptedF
 	 */
-	public SudokuGrid(String filename) throws IOException {
+	public SudokuGrid(Grid grid) throws IOException {
 
-		BufferedReader rdr = null;
-		int rows = 0, cols = 0;
-
-		try {
-			FileInputStream fin = new FileInputStream(filename);
-			rdr = new BufferedReader(new InputStreamReader(fin));
-
-			String line = null;
-
-			// First get the data size
-			while ((line = rdr.readLine()) != null) {
-				String[] splits = line.split(SEPERATOR);
-				if (cols == 0) {
-					cols = splits.length;
-				} else if (cols != splits.length) {
-					throw new IllegalArgumentException(
-							"Number of columns are not consistent");
-				}
-				++rows;
-			}
-
-			assert (rows == cols);
-
-			data = new int[rows][cols];
-
-			// Now read the file into the data member
-			// Reset to begiinging of file
-			fin.getChannel().position(0);
-			rdr = new BufferedReader(new InputStreamReader(fin));
-
-			int r = 0;
-			while ((line = rdr.readLine()) != null) {
-				String[] splits = line.split(SEPERATOR);
-				int c = 0;
-				for (String s : splits) {
-					data[r][c++] = Integer.valueOf(s);
-				}
-				r++;
-			}
-		} catch (IOException e) {
-
-		} finally {
-			rdr.close();
-		}
-
-		int numBlocks = rows;
+		data = grid;
+		
+		// Initialize sudoku blocks
+		int numBlocks = grid.getSize();
 		blocks = new SudokuBlock[numBlocks];
 		for (int b = 0; b < numBlocks; b++) {
-			blocks[b] = new SudokuBlock(data, b, (int) Math.sqrt(rows));
+			blocks[b] = new SudokuBlock(data, b);
 		}
 
+	}
+
+	@Override
+	public boolean verifySudoku() {
+		boolean solved = true;
+
+		// 3 checks
+		// verify each block
+		// verify all rows one by one
+		// verify all columns one by one
+
+		// check blocks
+		for (SudokuPlus b : blocks) {
+			if (!b.verifySudoku()) {
+				return false;
+			}
+		}
+
+		// check rows of entire table
+		if(!data.verifyRow()) {
+			return false;
+		}
+		
+		// check columns of entire table
+		if(!data.verifyColumn()) {
+			return false;
+		}
+		
+		return solved;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		for (int r = 0; r < data.length; r++) {
-			for (int c = 0; c < data.length; c++) {
-				sb.append(data[r][c]);
-				if (c + 1 < data.length) {
-					sb.append(",");
-				}
-			}
-			sb.append("\n");
-		}
+		sb.append(data.toString());
 		sb.append("\n");
-		for (SudokuBlock b : blocks) {
+		for (SudokuPlus b : blocks) {
 			sb.append(b.toString()).append("\n");
 		}
 
 		return sb.toString();
 	}
 
-	public boolean checkSolved() {
-		boolean solved = true;
-
-		// check blocks
-		for (SudokuBlock b : blocks) {
-			if (!b.checkSolved()) {
-				return false;
-			}
-		}
-
-		// check rows of the entire table
-
-		// check columns of entire table
-		
-		
-		return solved;
-	}
+	
 
 	/**
 	 * 
-	 * @author nikhilshirahatti
+	 * @author snikhil
 	 * 
-	 *         Helper class to check correctness of rows, columns and tables
+	 *         The basic unit of a Sudoku Grid. The data is stored in a 2d array
+	 *         and the same principles of checking it are used.
 	 */
-	private final static class CheckerHelper {
+	private class SudokuBlock implements SudokuPlus {
 
-		private static boolean checkBlock(int[][] block) {
-			Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
-
-			int blockSize = block.length;
-
-			for (int[] elementArray : block) {
-				for (int c = 0; c < blockSize; c++) {
-					int element = elementArray[c];
-					assert (element <= blockSize * blockSize);
-					if (counter.containsKey(element)) {
-						return false;
-					} else {
-						counter.put(element, 1);
-					}
-				}
-
-				assert (counter.values().size() == blockSize * blockSize);
-				for (int v : counter.values()) {
-					assert (v == 1);
-				}
-
-				return true;
-
-			}
-
-			assert (counter.values().size() == blockSize);
-			for (int v : counter.values()) {
-				assert (v == 1);
-			}
-
-			return true;
-		}
-
-		private static boolean checkArray(int[] array) {
-			Map<Integer, Integer> counter = new HashMap<Integer, Integer>();
-			int arrayLength = array.length;
-
-			for (int i : array) {
-				assert (i <= arrayLength * arrayLength);
-				if (counter.containsKey(i)) {
-					return false;
-				} else {
-					counter.put(i, 1);
-				}
-			}
-
-			assert (counter.values().size() == arrayLength);
-			for (int v : counter.values()) {
-				assert (v == 1);
-			}
-
-			return true;
-		}
-
-	}
-
-	/**
-	 * 
-	 * @author nikhilshirahatti
-	 * 
-	 */
-	private class SudokuBlock {
-
-		private int[][] data;
+		private Grid data;
 		private final int blockId;
 
 		/**
@@ -194,93 +102,76 @@ public class SudokuGrid {
 		 * @param blockId
 		 *            the blockId = incremental (r, c)
 		 */
-		public SudokuBlock(int[][] grid, int id, int blockSize) {
+		public SudokuBlock(Grid grid, int id) {
 			blockId = id;
-			data = new int[blockSize][blockSize];
-			int minc = (id % blockSize) * blockSize;
-			int minr = (id / blockSize) * blockSize;
-
-			for (int r = 0; r < blockSize; r++) {
-				for (int c = 0; c < blockSize; c++) {
-					data[r][c] = grid[minr + r][minc + c];
-				}
-			}
-
+			data = grid.getSample(id);
 		}
 
-		public boolean checkSolved() {
+		@Override
+		public boolean verifySudoku() {
 			// 3 rules
 			// row traversal should have a number exactly once
 			// column traversal should have a number exactly once
 			// entire table should have every number between 1-blocksize exactly
 			// once
-
 			boolean solved = true;
 
 			// row check
-			for (int r = 0; r < data.length; r++) {
-				if (!CheckerHelper.checkArray(data[r])) {
-					return false;
-				}
+			if(!data.verifyRow()) {
+				return false;
 			}
 
 			// column check
-			int[] colArray = new int[data.length];
-			for (int c = 0; c < data.length; c++) {
-				for (int r = 0; r < data.length; r++) {
-					colArray[r] = data[r][c];
-				}
-
-				if (!CheckerHelper.checkArray(colArray)) {
-					return false;
-				}
+			if(!data.verifyColumn()) {
+				return false;
 			}
 
 			// entire table check
-			if (!CheckerHelper.checkBlock(data)) {
+			if (!data.verifyGrid()) {
 				return false;
 			}
 
 			return solved;
 		}
-
+		
+		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-
-			sb.append("Data for blockId: ").append(blockId).append("\n");
-			for (int r = 0; r < data.length; r++) {
-				for (int c = 0; c < data.length; c++) {
-					sb.append(data[r][c]);
-					if (c + 1 < data.length) {
-						sb.append(",");
-					}
-				}
-				sb.append("\n");
-			}
+			sb.append(String.format("The data for blockid %d is:\n", blockId));
+			sb.append(data.toString());
 			return sb.toString();
 		}
 
 	}
 
+	
+	
 	public static void main(String[] args) {
 		try {
 			long startTime = System.nanoTime();
-			SudokuGrid grid = new SudokuGrid("data/MangledsampleInput_4x4.txt");
+			
+			Grid g = new SudokuData("data/sampleInput_4x4.txt");
+			SudokuPlus grid = new SudokuGrid(g);
+			
 			long loadTime = System.nanoTime();
+			
 			System.out.println("Load time in millisecs is: ".concat(String
-					.valueOf(loadTime - startTime)));
+					.valueOf((loadTime - startTime)/SudokuGrid.MILLISEC)));
+			
 			System.out.println(grid.toString());
+			
 			startTime = System.nanoTime();
 			System.out.println("Is the given sudoku solved? ".concat(String
-					.valueOf(grid.checkSolved())));
+					.valueOf(grid.verifySudoku())));
 			long checkTime = System.nanoTime();
 			System.out
 					.println("Time taken to detect correctness of solution in millisecs is: "
-							.concat(String.valueOf(checkTime - startTime)));
+							.concat(String.valueOf((checkTime - startTime)/SudokuGrid.MILLISEC)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
+
 }
