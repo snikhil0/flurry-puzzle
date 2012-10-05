@@ -36,7 +36,7 @@
 		</jar>
 	</target>
 
-	<target name="run">
+	<target name="run" depends="dist">
 		<java jar="${dist}/flurry-puzzle.jar" args="${basedir}/data/sampleInput_9x9.txt" fork="true" />
 	</target>
 
