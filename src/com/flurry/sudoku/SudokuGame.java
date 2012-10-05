@@ -89,6 +89,11 @@ public class SudokuGame implements Game {
 	public static void main(String[] args) {
 		
 		assert(args.length > 1);
+		if(args.length < 1){
+			System.out.println("Wrong input args");
+			return;
+		}
+		
 		String filename = args[0];
 		
 		try {
