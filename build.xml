@@ -1,0 +1,45 @@
+<project name="flurry-puzzle" default="all" basedir=".">
+	<description>
+        A build and test run file for Flurry puzzle
+    </description>
+	<!-- set global properties for this build -->
+	<property name="src" location="src" />
+	<property name="build" location="build" />
+	<property name="dist" location="dist" />
+	<property name="data" location="data" />
+
+	<target name="clean" description="clean up">
+		<!-- Delete the ${build} and ${dist} directory trees -->
+		<delete dir="${build}" />
+		<delete dir="${dist}" />
+	</target>
+
+	<target name="init" depends="clean">
+		<!-- Create the build directory structure used by compile -->
+		<mkdir dir="${build}" />
+	</target>
+
+	<target name="compile" depends="init" description="compile the source ">
+		<!-- Compile the java code from ${src} into ${build} -->
+		<javac srcdir="${src}" destdir="${build}" />
+	</target>
+
+	<target name="dist" depends="compile" description="generate the distribution">
+		<!-- Create the distribution directory -->
+		<mkdir dir="${dist}/" />
+
+		<!-- Put everything in ${build} into the MyProject-${DSTAMP}.jar file -->
+		<jar jarfile="${dist}/flurry-puzzle.jar" basedir="${build}">
+			<manifest>
+				<attribute name="Main-Class" value="com.flurry.sudoku.SudokuGame" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="run">
+		<java jar="${dist}/flurry-puzzle.jar" args="${basedir}/data/sampleInput_9x9.txt" fork="true" />
+	</target>
+
+	<target name="all" depends="dist,run" />
+
+</project>

@@ -6,10 +6,12 @@ import java.io.IOException;
  * 
  * @author snikhil
  * 
- *         The class that contains the entire sudoku data. The class stores the
- *         entire table into a 2d array as well as stores an array of
- *         Sudokublocks. The SudokuBlock is a unit of a SudokuGrid. The rules
- *         for correctness of the SudokuGrid apply to the SudokuBlock.
+ *         The class implements the Game interface. The sudoku game consists of
+ *         a Grid that represents the entire table and an array of Grids tat
+ *         represents the so called blocks. To verify this game the following
+ *         should be true: * each block should be verified * each row of the
+ *         entire grid is verifiable * each column of the entore grid is
+ *         verifiable
  * 
  */
 public class SudokuGame implements Game {
@@ -20,10 +22,9 @@ public class SudokuGame implements Game {
 
 	/**
 	 * 
-	 * @param filename
-	 *            the filename(path) that has the csv representation of the data
+	 * @param grid
+	 *            The big grid data
 	 * @throws IOException
-	 *             throw an IOException of file is not present or corruptedF
 	 */
 	public SudokuGame(Grid grid) throws IOException {
 
@@ -80,12 +81,20 @@ public class SudokuGame implements Game {
 		return sb.toString();
 	}
 
-
+	/** 
+	 * Main runner
+	 * @param args
+	 *  arguments to the file
+	 */
 	public static void main(String[] args) {
+		
+		assert(args.length > 1);
+		String filename = args[0];
+		
 		try {
 			long startTime = System.nanoTime();
 
-			Grid g = new SudokuData("data/sampleInput_4x4.txt");
+			Grid g = new SudokuData(filename);
 			Game game = new SudokuGame(g);
 
 			long loadTime = System.nanoTime();

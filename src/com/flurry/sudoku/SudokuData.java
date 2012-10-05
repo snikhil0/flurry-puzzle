@@ -5,6 +5,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+/**
+ * 
+ * @author nikhilshirahatti
+ * 
+ *         The sudoku data modeled as a 2d array. The constructor either takes
+ *         in a predefined 2d array or a file path (string) that is read into
+ *         the 2d array
+ */
 public class SudokuData implements Grid {
 
 	private final static String SEPERATOR = ",";
@@ -22,7 +30,7 @@ public class SudokuData implements Grid {
 			}
 			sb.append("\n");
 		}
-		
+
 		return sb.toString();
 	}
 
