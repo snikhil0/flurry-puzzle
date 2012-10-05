@@ -15,4 +15,3 @@ To run the puzzle:
 Checkout the git source. Go into project folder. Run:
 ant run
 
-
