@@ -9,7 +9,7 @@ import java.util.Map;
  * 
  *         Helper class to check correctness of rows, columns and tables
  */
-public final class SolutionVerifyHelper {
+public final class GameVerifyHelper {
 
 	static boolean verifyBlock(int[][] block) {
 		Map<Integer, Integer> counter = new HashMap<Integer, Integer>();

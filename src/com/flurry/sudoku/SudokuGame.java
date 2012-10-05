@@ -12,13 +12,12 @@ import java.io.IOException;
  *         for correctness of the SudokuGrid apply to the SudokuBlock.
  * 
  */
-public class SudokuGrid implements SudokuPlus {
+public class SudokuGame implements Game {
 
 	private static final int MILLISEC = 100000;
 	Grid data;
-	private SudokuPlus[] blocks;
-	
-	
+	private Grid[] blocks;
+
 	/**
 	 * 
 	 * @param filename
@@ -26,21 +25,21 @@ public class SudokuGrid implements SudokuPlus {
 	 * @throws IOException
 	 *             throw an IOException of file is not present or corruptedF
 	 */
-	public SudokuGrid(Grid grid) throws IOException {
+	public SudokuGame(Grid grid) throws IOException {
 
 		data = grid;
-		
+
 		// Initialize sudoku blocks
 		int numBlocks = grid.getSize();
-		blocks = new SudokuBlock[numBlocks];
+		blocks = new SudokuData[numBlocks];
 		for (int b = 0; b < numBlocks; b++) {
-			blocks[b] = new SudokuBlock(data, b);
+			blocks[b] = new SudokuData(data.getSample(b));
 		}
 
 	}
 
 	@Override
-	public boolean verifySudoku() {
+	public boolean verifyGame() {
 		boolean solved = true;
 
 		// 3 checks
@@ -49,22 +48,22 @@ public class SudokuGrid implements SudokuPlus {
 		// verify all columns one by one
 
 		// check blocks
-		for (SudokuPlus b : blocks) {
-			if (!b.verifySudoku()) {
+		for (Grid b : blocks) {
+			if (!b.verify()) {
 				return false;
 			}
 		}
 
 		// check rows of entire table
-		if(!data.verifyRow()) {
+		if (!data.verifyRow()) {
 			return false;
 		}
-		
+
 		// check columns of entire table
-		if(!data.verifyColumn()) {
+		if (!data.verifyColumn()) {
 			return false;
 		}
-		
+
 		return solved;
 	}
 
@@ -74,99 +73,36 @@ public class SudokuGrid implements SudokuPlus {
 
 		sb.append(data.toString());
 		sb.append("\n");
-		for (SudokuPlus b : blocks) {
+		for (Grid b : blocks) {
 			sb.append(b.toString()).append("\n");
 		}
 
 		return sb.toString();
 	}
 
-	
 
-	/**
-	 * 
-	 * @author snikhil
-	 * 
-	 *         The basic unit of a Sudoku Grid. The data is stored in a 2d array
-	 *         and the same principles of checking it are used.
-	 */
-	private class SudokuBlock implements SudokuPlus {
-
-		private Grid data;
-		private final int blockId;
-
-		/**
-		 * 
-		 * @param filename
-		 *            file to read from
-		 * @param blockId
-		 *            the blockId = incremental (r, c)
-		 */
-		public SudokuBlock(Grid grid, int id) {
-			blockId = id;
-			data = grid.getSample(id);
-		}
-
-		@Override
-		public boolean verifySudoku() {
-			// 3 rules
-			// row traversal should have a number exactly once
-			// column traversal should have a number exactly once
-			// entire table should have every number between 1-blocksize exactly
-			// once
-			boolean solved = true;
-
-			// row check
-			if(!data.verifyRow()) {
-				return false;
-			}
-
-			// column check
-			if(!data.verifyColumn()) {
-				return false;
-			}
-
-			// entire table check
-			if (!data.verifyGrid()) {
-				return false;
-			}
-
-			return solved;
-		}
-		
-		@Override
-		public String toString() {
-			StringBuilder sb = new StringBuilder();
-			sb.append(String.format("The data for blockid %d is:\n", blockId));
-			sb.append(data.toString());
-			return sb.toString();
-		}
-
-	}
-
-	
-	
 	public static void main(String[] args) {
 		try {
 			long startTime = System.nanoTime();
-			
+
 			Grid g = new SudokuData("data/sampleInput_4x4.txt");
-			SudokuPlus game = new SudokuGrid(g);
-			
+			Game game = new SudokuGame(g);
+
 			long loadTime = System.nanoTime();
-			
+
 			System.out.println("Load time in millisecs is: ".concat(String
-					.valueOf((loadTime - startTime)/SudokuGrid.MILLISEC)));
-			
+					.valueOf((loadTime - startTime) / SudokuGame.MILLISEC)));
+
 			System.out.println(game.toString());
-			
+
 			startTime = System.nanoTime();
 			System.out.println("Is the given sudoku solved? ".concat(String
-					.valueOf(game.verifySudoku())));
+					.valueOf(game.verifyGame())));
 			long checkTime = System.nanoTime();
 			System.out
 					.println("Time taken to detect correctness of solution in millisecs is: "
-							.concat(String.valueOf((checkTime - startTime)/SudokuGrid.MILLISEC)));
+							.concat(String.valueOf((checkTime - startTime)
+									/ SudokuGame.MILLISEC)));
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

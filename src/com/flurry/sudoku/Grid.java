@@ -4,6 +4,7 @@ public interface Grid {
 	boolean verifyRow();
 	boolean verifyColumn();
 	boolean verifyGrid();
+	boolean verify();
 	int getSize();
-	Grid getSample(int id);
+	int[][] getSample(int id);
 }

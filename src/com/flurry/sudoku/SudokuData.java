@@ -5,16 +5,31 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-
 public class SudokuData implements Grid {
 
 	private final static String SEPERATOR = ",";
 	private int[][] data;
 
-	public SudokuData(int sz) {
-		data = new int[sz][sz];
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		for (int r = 0; r < data.length; r++) {
+			for (int c = 0; c < data.length; c++) {
+				sb.append(data[r][c]);
+				if (c + 1 < data.length) {
+					sb.append(",");
+				}
+			}
+			sb.append("\n");
+		}
+		
+		return sb.toString();
 	}
-	
+
+	public SudokuData(int[][] g) {
+		data = g;
+	}
+
 	public SudokuData(String filename) throws IOException {
 		BufferedReader rdr = null;
 		int rows = 0, cols = 0;
@@ -66,11 +81,11 @@ public class SudokuData implements Grid {
 	public boolean verifyRow() {
 		// check rows of the entire table
 		for (int r = 0; r < data.length; r++) {
-			if (!SolutionVerifyHelper.verifyArray(data[r])) {
+			if (!GameVerifyHelper.verifyArray(data[r])) {
 				return false;
 			}
 		}
-		
+
 		return true;
 	}
 
@@ -82,19 +97,17 @@ public class SudokuData implements Grid {
 				colArray[r] = data[r][c];
 			}
 
-			if (!SolutionVerifyHelper.verifyArray(colArray)) {
+			if (!GameVerifyHelper.verifyArray(colArray)) {
 				return false;
 			}
 		}
 
-		
 		return true;
 	}
 
 	@Override
 	public boolean verifyGrid() {
-		// TODO Auto-generated method stub
-		return false;
+		return GameVerifyHelper.verifyBlock(data);
 	}
 
 	@Override
@@ -103,19 +116,24 @@ public class SudokuData implements Grid {
 	}
 
 	@Override
-	public Grid getSample(int id) {
+	public int[][] getSample(int id) {
 		int blockSize = (int) Math.sqrt(data.length);
-		SudokuData g = new SudokuData(blockSize);
-		
+		int[][] g = new int[blockSize][blockSize];
+
 		int minc = (id % blockSize) * blockSize;
 		int minr = (id / blockSize) * blockSize;
 
 		for (int r = 0; r < blockSize; r++) {
 			for (int c = 0; c < blockSize; c++) {
-				g.data[r][c] = data[minr + r][minc + c];
+				g[r][c] = data[minr + r][minc + c];
 			}
 		}
 
 		return g;
+	}
+
+	@Override
+	public boolean verify() {
+		return verifyRow() && verifyColumn() && verifyGrid();
 	}
 }
