@@ -151,18 +151,18 @@ public class SudokuGrid implements SudokuPlus {
 			long startTime = System.nanoTime();
 			
 			Grid g = new SudokuData("data/sampleInput_4x4.txt");
-			SudokuPlus grid = new SudokuGrid(g);
+			SudokuPlus game = new SudokuGrid(g);
 			
 			long loadTime = System.nanoTime();
 			
 			System.out.println("Load time in millisecs is: ".concat(String
 					.valueOf((loadTime - startTime)/SudokuGrid.MILLISEC)));
 			
-			System.out.println(grid.toString());
+			System.out.println(game.toString());
 			
 			startTime = System.nanoTime();
 			System.out.println("Is the given sudoku solved? ".concat(String
-					.valueOf(grid.verifySudoku())));
+					.valueOf(game.verifySudoku())));
 			long checkTime = System.nanoTime();
 			System.out
 					.println("Time taken to detect correctness of solution in millisecs is: "
